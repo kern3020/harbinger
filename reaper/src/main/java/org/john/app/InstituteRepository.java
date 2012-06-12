@@ -1,5 +1,23 @@
 package org.john.app;
 
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -14,7 +32,6 @@ import org.springframework.stereotype.Repository;
 
 import au.com.bytecode.opencsv.CSVReader;
 
-import org.john.app.domain.Institute; 
 import org.john.app.domain.AccreditedCampus;
 import org.john.app.domain.AccreditedPostsecondaryInstitution;
 import org.john.app.domain.AccreditedProgram;
@@ -26,46 +43,34 @@ public class InstituteRepository {
 
 	@Autowired
     MongoTemplate mongoTemplate;
-
-	public void logAllPersons() {
-        List<Institute> results = mongoTemplate.findAll(Institute.class);
-        logger.info("Total amount of persons: {}", results.size());
-        logger.info("Results: {}", results);
-    }
-
-	public void insert(String aName, Integer aZip) {
-		Institute i = new Institute(aName, aZip);
-		mongoTemplate.insert(i);
-	}
 	
 	public void dump() {
 		System.out.println("entering dump.");
 		int count = 0;
-		List<Institute> results = mongoTemplate.findAll(Institute.class);
-        Iterator<Institute> instituteIterator = results.iterator();
+		List<AccreditedPostsecondaryInstitution> results = mongoTemplate.findAll(AccreditedPostsecondaryInstitution.class);
+        Iterator<AccreditedPostsecondaryInstitution> instituteIterator = results.iterator();
         while (instituteIterator.hasNext() && count < 5 ) {
-            Institute nextInstitute = instituteIterator.next();
+            AccreditedPostsecondaryInstitution nextInstitute = instituteIterator.next();
             System.out.println(nextInstitute);
             count++;
         }
-
 	}
 	
     /**
-     * Create a {@link Institute} collection if the collection does not already exists
+     * Create a {@link AccreditedPostsecondaryInstitution} collection if the collection does not already exists
      */
     public void createCollection() {
-        if (!mongoTemplate.collectionExists(Institute.class)) {
-            mongoTemplate.createCollection(Institute.class);
+        if (!mongoTemplate.collectionExists(AccreditedPostsecondaryInstitution.class)) {
+            mongoTemplate.createCollection(AccreditedPostsecondaryInstitution.class);
         }
     }
 
     /**
-     * Drops the {@link Institute} collection if the collection does already exists
+     * Drops the {@link AccreditedPostsecondaryInstitution} collection if the collection does already exists
      */
     public void dropCollection() {
-        if (mongoTemplate.collectionExists(Institute.class)) {
-            mongoTemplate.dropCollection(Institute.class);
+        if (mongoTemplate.collectionExists(AccreditedPostsecondaryInstitution.class)) {
+            mongoTemplate.dropCollection(AccreditedPostsecondaryInstitution.class);
         }
     }
 	
@@ -118,8 +123,6 @@ public class InstituteRepository {
                 	// Institution ZIP
                 	institute.setZipCode(curRec[index]);
                 	index++;
-                	
-
                 	
                 	// Institution Phone 
                 	//  - ignored for now.
