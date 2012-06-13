@@ -94,7 +94,7 @@ public class Places {
 	public void setAddress(String type, String address) {
 		if (this.address == null) {
 			this.address = address; 
-		} else if (type.equals(Geocoder.TYPE_STREET)) {
+		} else if (type.equals(GeocoderPopulate.TYPE_STREET)) {
 			this.address = address + " " + this.address; 
 		} else { 
 			this.address += " " + address;

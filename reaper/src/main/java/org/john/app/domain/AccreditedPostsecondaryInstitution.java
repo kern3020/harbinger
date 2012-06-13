@@ -92,7 +92,9 @@ public class AccreditedPostsecondaryInstitution extends Places {
 		return rc; 				
 	}
 	
-	public AccreditedProgram getProgram(String aName) {
+	// creates a new program and adds it to a set. 
+	// new program is returned. 
+	public AccreditedProgram createProgram(String aName) {
 		AccreditedProgram rc = new AccreditedProgram(aName);
 		this.programSet.add(rc);
 		return rc;

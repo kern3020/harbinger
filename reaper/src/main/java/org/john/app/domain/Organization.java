@@ -21,7 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * This class represents an organization which  may have multiple location.  
+ * This class represents an organization which may have multiple location.  
  *  
  * @author John Kern
  * 
@@ -78,10 +78,17 @@ public class Organization {
 	private int size() {
 		return campus.size();
 	}
-	String getFirstZip() {
+	String getFirstLat() {
 		String rc  = null;
 		if (size() > 0 ) {
-			rc = campus.get(0).getZipCode();
+			rc = campus.get(0).getLat();
+		}
+		return rc; 
+	}
+	String getFirstLng() {
+		String rc  = null;
+		if (size() > 0 ) {
+			rc = campus.get(0).getLng();
 		}
 		return rc; 
 	}

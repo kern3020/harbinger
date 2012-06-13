@@ -42,12 +42,10 @@ public class ReaperApp
         }
         InstituteRepository instituteRepository = context.getBean(InstituteRepository.class);
         
-        instituteRepository.dropCollection();
-        
-        instituteRepository.createCollection();
-        //instituteRepository.insert("MSU", 48823);
-        // instituteRepository.insert("UofM", 48103);
-        instituteRepository.parseMe(ACCREDITED_SCHOOLS_CSV);
+//        instituteRepository.dropCollection();
+//        
+//        instituteRepository.createCollection();
+//        instituteRepository.parseMe(ACCREDITED_SCHOOLS_CSV);
         instituteRepository.dump();
     }
 }

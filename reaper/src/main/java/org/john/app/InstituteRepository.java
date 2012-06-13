@@ -35,7 +35,7 @@ import au.com.bytecode.opencsv.CSVReader;
 import org.john.app.domain.AccreditedCampus;
 import org.john.app.domain.AccreditedPostsecondaryInstitution;
 import org.john.app.domain.AccreditedProgram;
-import org.john.app.domain.Geocoder;
+import org.john.app.domain.GeocoderPopulate;
 
 @Repository
 public class InstituteRepository {
@@ -109,7 +109,7 @@ public class InstituteRepository {
                 	index++; 
                 	
                 	// Institution Address
-                	institute.setAddress(Geocoder.TYPE_STREET, curRec[index]);
+                	institute.setAddress(GeocoderPopulate.TYPE_STREET, curRec[index]);
                 	index++;
                 	
                 	// Institution City
@@ -174,7 +174,7 @@ public class InstituteRepository {
                 	
                 	// Campus Address
                 	if(!curRec[index].equals("") && campus!=null) {
-                		campus.setAddress(Geocoder.TYPE_STREET, curRec[index]);
+                		campus.setAddress(GeocoderPopulate.TYPE_STREET, curRec[index]);
                 	}
                 	index++;
                 	
@@ -216,7 +216,7 @@ public class InstituteRepository {
                 	index++;
                 	
                 	String programName = curRec[index];
-                	AccreditedProgram program = institute.getProgram(programName);
+                	AccreditedProgram program = institute.createProgram(programName);
                 	program.setAgencyName(agency);
                 	index++;
                 	
