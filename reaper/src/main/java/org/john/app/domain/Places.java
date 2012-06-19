@@ -17,8 +17,6 @@ package org.john.app.domain;
  * limitations under the License.
  */
 
-import java.net.URL;
-import java.net.MalformedURLException;
 
 
 /*
@@ -35,7 +33,7 @@ public class Places {
 	String zipCode; // postal_code
 	String lat; 
 	String lng; 
-	URL website; 
+	String website; 
 	PlaceType type;
 
 	public enum PlaceType {CAMPUS,LIBRARY, UNIVERSITY, UNSPECIFIED};
@@ -48,14 +46,21 @@ public class Places {
 		super();
 	}
 	
-	public URL getWebsite() {
+	// It is tempting to represent the url as a {{URL}}. 
+	// I do not see the benefit of storing it in Mongo that way.
+	// If you change your mind, remember there is no default contructor. 
+	// Spring data is planning to create a default converter. If they
+	// haven't added it, you'll need to do so. 
+	// see https://jira.springsource.org/browse/DATAMONGO-461
+	// and https://jira.springsource.org/browse/DATAMONGO-462
+	public String getWebsite() {
 		return website;
 	}
-	public void setWebsite(String website) throws MalformedURLException {
+	public void setWebsite(String website)  {
 		if (!website.toLowerCase().contains("http")) {
 			website = "http://" + website;
 		}
-		this.website = new URL(website);
+		this.website = website;
 	}
 	public String getCounty() {
 		return county;

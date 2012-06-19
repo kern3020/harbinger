@@ -38,7 +38,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
  *
  */
 
-@Document
+@Document(collection="institutions")
 public class AccreditedPostsecondaryInstitution extends Places {
 	@SuppressWarnings("unused")
 	@Id

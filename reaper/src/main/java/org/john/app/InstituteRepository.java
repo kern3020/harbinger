@@ -23,6 +23,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +48,8 @@ public class InstituteRepository {
 	public void dump() {
 		System.out.println("entering dump.");
 		int count = 0;
-		List<AccreditedPostsecondaryInstitution> results = mongoTemplate.findAll(AccreditedPostsecondaryInstitution.class);
+		
+		List<AccreditedPostsecondaryInstitution> results = mongoTemplate.findAll(AccreditedPostsecondaryInstitution.class,"institutions");
         Iterator<AccreditedPostsecondaryInstitution> instituteIterator = results.iterator();
         while (instituteIterator.hasNext() && count < 5 ) {
             AccreditedPostsecondaryInstitution nextInstitute = instituteIterator.next();
@@ -148,11 +150,7 @@ public class InstituteRepository {
                 	index++;
                 	
                 	// Institution web address
-                	try {
-                		institute.setWebsite(curRec[index]);
-                	} catch (java.net.MalformedURLException me) {
-                		System.out.println("bogus URL - " + curRec[index]);
-                	}
+                	institute.setWebsite(curRec[index]);
                 	index++; 
                 	
                 	// The data dictionary specific from the department of education defines campuses.
