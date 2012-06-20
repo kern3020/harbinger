@@ -78,15 +78,17 @@ public class Organization {
 	private int size() {
 		return campus.size();
 	}
-	String getFirstLat() {
-		String rc  = null;
+	
+	double  getFirstLat() {
+		double rc = 0.0;
 		if (size() > 0 ) {
 			rc = campus.get(0).getLat();
 		}
 		return rc; 
 	}
-	String getFirstLng() {
-		String rc  = null;
+	
+	double  getFirstLng() {
+		double rc  = 0.0;
 		if (size() > 0 ) {
 			rc = campus.get(0).getLng();
 		}

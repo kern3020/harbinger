@@ -32,11 +32,15 @@ public class Places {
 	String us_state;  // administrative_area_level_1, shortname
 	String zipCode; // postal_code
 	String lat; 
-	String lng; 
+	String lng;
+	double[] location; 
 	String website; 
 	PlaceType type;
 
 	public enum PlaceType {CAMPUS,LIBRARY, UNIVERSITY, UNSPECIFIED};
+
+	private final static int LAT=0;
+	private final static int LNG=1;
 	
 	public Places(PlaceType pt) {
 		super();
@@ -70,20 +74,20 @@ public class Places {
 		this.county = county;
 	}
 
-	public String getLat() {
-		return lat;
+	public double getLat() {
+		return this.location[LAT];
 	}
 
 	public void setLat(String lat) {
-		this.lat = lat;
+		this.location[LAT] = Double.valueOf(lat);
 	}
 
-	public String getLng() {
-		return lng;
+	public double getLng() {
+		return this.location[LNG];
 	}
 
 	public void setLng(String lng) {
-		this.lng = lng;
+		this.location[LNG] = Double.valueOf(lng);
 	}
 
 	public String getName() {

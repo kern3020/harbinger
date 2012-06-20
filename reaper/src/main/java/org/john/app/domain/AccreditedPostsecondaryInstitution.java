@@ -17,8 +17,6 @@ package org.john.app.domain;
  * limitations under the License.
  */
 
-import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -54,7 +52,7 @@ public class AccreditedPostsecondaryInstitution extends Places {
 	// IV regulations. This is a 6-digit number followed by a 2-digit suffix 
 	// used to identify branches, additional locations, and other entities 
 	// that are part of the eligible institution.
-	Integer OPEID;
+	String OPEID;
 	
 	// A unique identification number for institutions that participate in the 
 	// Integrated Postsecondary Education Data System Survey.
@@ -62,19 +60,17 @@ public class AccreditedPostsecondaryInstitution extends Places {
 
 	// institutions can have multiple campuses. Story in hash to allow for quick existence check 
 	// based on Database Id. 
-	private Map<Integer, AccreditedCampus> campusMap;
+	private Set<AccreditedCampus> campusSet;
 	
 	// programs associates the programs name with this accredited program object.  
 	private Set<AccreditedProgram> programSet; 
 	
-	AccreditationType accreditationType; 
-	
-	enum AccreditationType {INSTITUTIONAL, SPECIALIZED, INTERSHIP_RESIDENCY};
+
 	
 	public AccreditedPostsecondaryInstitution(Integer aId) {
 		super(Places.PlaceType.UNSPECIFIED);
 		this.id = aId;
-		this.campusMap = new HashMap<Integer, AccreditedCampus>();
+		this.campusSet = new HashSet<AccreditedCampus>();
 		this.programSet = new HashSet<AccreditedProgram>();
 	}
 	
@@ -82,13 +78,11 @@ public class AccreditedPostsecondaryInstitution extends Places {
 		super();
 	}
 	
-	// returns the campus or null if none is defined. 
-	public AccreditedCampus getCampus(Integer aId) {
-		AccreditedCampus rc = campusMap.get(aId);
-		if (rc == null ) {
-			rc = new AccreditedCampus(aId);
-			campusMap.put(aId, rc);
-		}
+	// creates a new campus and adds it to a set. 
+	// new campus is returned.
+	public AccreditedCampus createCampus(String aName) {
+		AccreditedCampus rc = new AccreditedCampus();
+		this.campusSet.add(rc);
 		return rc; 				
 	}
 	
@@ -110,11 +104,16 @@ public class AccreditedPostsecondaryInstitution extends Places {
 		}
 	}
 
-	public Integer getOPEID() {
+	public String getOPEID() {
 		return this.OPEID;
 	}
 
-	public void setOPEID(Integer aOPEID) {
+	/**
+	 * The OPEID is a little strange. While defined as an digit, it values
+	 * contain 'A'. Hex? I don't think they have thought it through. 
+	 * @param aOPEID
+	 */
+	public void setOPEID(String aOPEID) {
 		if (this.OPEID == null) {
 			this.OPEID = aOPEID;
 		}
@@ -130,17 +129,5 @@ public class AccreditedPostsecondaryInstitution extends Places {
 		}
 	}
 
-	public AccreditationType getAccreditationType() {
-		return accreditationType;
-	}
 
-	public void setAccreditationType(String accreditationTypeStr) {
-		if (this.accreditationType == null) {
-			if (accreditationTypeStr.toLowerCase().equals("internship/residency")) {
-				this.accreditationType = AccreditationType.INTERSHIP_RESIDENCY;
-			} else {
-				this.accreditationType = AccreditationType.valueOf(accreditationTypeStr.toUpperCase());
-			}
-		}
-	}
 }

@@ -26,9 +26,6 @@ public class AccreditedCampus extends Places {
 	@SuppressWarnings("unused")
 	@Id
 	private String campusId;
-
-	// Database Specific Identification Number for Institution
-	Integer id;
 	
 	// A unique identification number for institutions that participate 
 	// in the Integrated Postsecondary Education Data System Survey. 
@@ -38,9 +35,9 @@ public class AccreditedCampus extends Places {
 		super();
 	}
 	
-	public AccreditedCampus(Integer aId) {
+	public AccreditedCampus(String aName) {
 		super(Places.PlaceType.CAMPUS);
-		this.id = aId; 
+		this.name = aName;
 	}
 
 	public Integer getIPEDS_UnitID() {

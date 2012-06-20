@@ -18,16 +18,20 @@ package org.john.app;
  */
 
 
+import static org.springframework.data.mongodb.core.query.Query.query;
+//import static org.springframework.data.mongodb.core.query.Criteria.where;
+
+
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -36,6 +40,7 @@ import au.com.bytecode.opencsv.CSVReader;
 import org.john.app.domain.AccreditedCampus;
 import org.john.app.domain.AccreditedPostsecondaryInstitution;
 import org.john.app.domain.AccreditedProgram;
+import org.john.app.domain.GeocoderLocation;
 import org.john.app.domain.GeocoderPopulate;
 
 @Repository
@@ -44,19 +49,6 @@ public class InstituteRepository {
 
 	@Autowired
     MongoTemplate mongoTemplate;
-	
-	public void dump() {
-		System.out.println("entering dump.");
-		int count = 0;
-		
-		List<AccreditedPostsecondaryInstitution> results = mongoTemplate.findAll(AccreditedPostsecondaryInstitution.class,"institutions");
-        Iterator<AccreditedPostsecondaryInstitution> instituteIterator = results.iterator();
-        while (instituteIterator.hasNext() && count < 5 ) {
-            AccreditedPostsecondaryInstitution nextInstitute = instituteIterator.next();
-            System.out.println(nextInstitute);
-            count++;
-        }
-	}
 	
     /**
      * Create a {@link AccreditedPostsecondaryInstitution} collection if the collection does not already exists
@@ -75,13 +67,18 @@ public class InstituteRepository {
             mongoTemplate.dropCollection(AccreditedPostsecondaryInstitution.class);
         }
     }
-	
-    // TODO: check mongo for existing institution.  
-	public  AccreditedPostsecondaryInstitution getInstitute(Integer aId){		
-		AccreditedPostsecondaryInstitution rc = new AccreditedPostsecondaryInstitution(aId);
-		return rc;
-	}
-
+    
+	/**
+	 * parseMe() parse a csv file from the US department of education. An institution can
+	 * and often does span multiple rows in the file. After analyzing at the data, I am 
+	 * making the following assumptions. 
+	 *  1) Any given institution is defined in consecutive rows. 
+	 *  2) It is assumed that the first row defines institution and a program. Subsequent rows
+	 *  with the same instituteId define additional programs    
+	 * 
+	 * @param csvFile
+	 * @return
+	 */
 	
 	public int parseMe(final String csvFile) {
 		int rc = 0; 
@@ -91,18 +88,39 @@ public class InstituteRepository {
         try {
             reader = new CSVReader(new FileReader(csvFile));
             curRec = reader.readNext(); // ignore header  
+           // int count = -1;
+            AccreditedPostsecondaryInstitution institute =null;
             while (moreToRead) {
+            //	count++; 
             	curRec = reader.readNext();
-                if (curRec == null) {
+                if (curRec == null ) { // || count > 10
                 	moreToRead = false; 
-                } else if (!curRec[0].equals("")){
+                } else if (!curRec[0].equals("")) {
                 	// Institution ID
-                	AccreditedPostsecondaryInstitution institute =null;
                 	Integer intValue = null;
                 	int index = 0 ;
                 	if (!curRec[index].equals("")) {
                 		intValue = this.convertToInteger(curRec[index]);
-                		institute = this.getInstitute(intValue);
+                		//institute = this.getInstitute(intValue);
+                		if (institute == null) {
+                			institute = new AccreditedPostsecondaryInstitution(intValue);
+                		} else if (intValue.intValue() == institute.getId().intValue()) {
+                			// This line in the csv file defines a new program for the existing 
+                			// institution. 
+                		} else {
+                			// save previous institution to the repository
+                       		try { 
+                    			mongoTemplate.insert(institute);
+                    		} catch (DataAccessException e) {
+                    			System.err.println("unexpected data access error: "  + e.getMessage());
+                    			System.err.println("\t ignoring and continuing. ");
+                    		} catch (Exception e) {
+                    			System.err.println("unexpected error: "  + e.getMessage());
+                    			System.err.println("\t ignoring and continuing. ");
+                    		}
+                       		// create a new institution for this row. 
+                       		institute = new AccreditedPostsecondaryInstitution(intValue);
+                		}
                 	}
                 	index++; 
                 	
@@ -132,13 +150,7 @@ public class InstituteRepository {
                 	
                 	// Institution OPEID 
                 	if (!curRec[index].equals("")) {
-                		try { 
-                			intValue = this.convertToInteger(curRec[index]);
-                			institute.setOPEID(intValue);
-                		} catch (NumberFormatException nfe) {
-                			System.out.println("Number format exception: " + curRec[index] + "\tname: " + curRec[1]);
-                			System.out.println("Ignore and continue. ");
-                		}
+                		institute.setOPEID(curRec[index]);
                 	}
                 	index++;
                 	
@@ -156,17 +168,13 @@ public class InstituteRepository {
                 	// The data dictionary specific from the department of education defines campuses.
                 	// In the database, it is used rarely.  
                 	
-                	// Campus ID 
+                	// Campus ID - ignored
                 	AccreditedCampus campus = null; 
-                	if(!curRec[index].equals("")) {
-                		intValue = this.convertToInteger(curRec[index]);
-                		campus = institute.getCampus(intValue);
-                	}
                 	index++;
              
                 	// Campus Name
-                	if(!curRec[index].equals("") && campus!=null) {
-                		campus.setName(curRec[index]);
+                	if(!curRec[index].equals("") ) {
+                		campus = institute.createCampus(curRec[index]);
                 	}
                 	index++;   
                 	
@@ -202,8 +210,9 @@ public class InstituteRepository {
                 	index++;
                 	
                 	// Campus Accreditation type 
+                	String accType = null; 
                 	if(!curRec[index].equals("")) {
-                		institute.setAccreditationType(curRec[index]);
+                		accType = curRec[index];
                 	}
                 	index++;
                 	
@@ -216,6 +225,7 @@ public class InstituteRepository {
                 	String programName = curRec[index];
                 	AccreditedProgram program = institute.createProgram(programName);
                 	program.setAgencyName(agency);
+                	program.setAccreditationType(accType);
                 	index++;
                 	
                 	// Data dictionary specifies a Review Date
@@ -239,8 +249,7 @@ public class InstituteRepository {
                 	if (!curRec[index].equals("")) {
                 		program.setLastAction(curRec[index]);
                 	}
-            		
-                	mongoTemplate.insert(institute);
+     
                 }
             }           
         } catch (FileNotFoundException e404) {
@@ -253,11 +262,33 @@ public class InstituteRepository {
         return rc; 
 	}
 	
+	public  void geocodeMe() {
+		GeocoderLocation geo = new GeocoderLocation(); 
+		// geo.parseMe("917 Missile Road Sheppard AFB TX 76311-2263");
+        List<AccreditedPostsecondaryInstitution> results = null;
+		results = mongoTemplate.find(query(null).limit(5), AccreditedPostsecondaryInstitution.class);
+
+		Iterator<AccreditedPostsecondaryInstitution> iterator = results.iterator();
+		while(iterator.hasNext()) {
+			AccreditedPostsecondaryInstitution aPlace = iterator.next();
+			String geocodeDis = 
+				aPlace.getAddress() +
+				aPlace.getCity() +
+				aPlace.getUs_state() +
+				aPlace.getCounty();
+			geo.reset();
+			geo.parseMe(geocodeDis);
+			// ok, how do I update the document with lat/lng? 
+			// What is the right syntax for the java object ?
+			// what is the right mongo operation? 
+		}
+		
+	}
 
 	private Integer convertToInteger(String aStr) {
 		Integer intValue = null;
-		// excel triple quotes most die. 
-		intValue = Integer.valueOf(aStr.replace("\"", ""),16);
+		// excel triple quotes must die. 
+		intValue = Integer.valueOf(aStr.replace("\"", ""));
 		return intValue;
 	}
     

@@ -60,11 +60,15 @@ public class GeocoderLocation extends Geocoder  implements ContentHandler {
 	private String lng;
 	
 	public GeocoderLocation() {
+		this.reset();
+		
+	}
 
+	public void reset() { 
 		this.initializeDoc();
 		this.initializeCampus();
 	}
-
+	
 	private void initializeDoc() { 
 		inDocument=false;
 		inStatus=false; 
@@ -88,6 +92,10 @@ public class GeocoderLocation extends Geocoder  implements ContentHandler {
 
 	public String getLng() {
 		return lng;
+	}
+	
+	public double[] getMongoStyleLocaiton() {
+		return new double [] {Double.valueOf(lat), Double.valueOf(lng)};
 	}
 	
 	@Override

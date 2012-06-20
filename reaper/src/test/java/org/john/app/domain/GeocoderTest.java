@@ -23,8 +23,8 @@ public class GeocoderTest  {
 		// expecting 
 		// <lat>31.8893560</lat>
 		// <lng>-87.7452687</lng>
-		assertTrue(org.getFirstLat().equals("31.8893560"));
-		assertTrue(org.getFirstLng().equals("-87.7452687"));
+		assertTrue(org.getFirstLat() == 31.8893560);
+		assertTrue(org.getFirstLng() == -87.7452687);
 	}
 	
 	/**
@@ -41,6 +41,5 @@ public class GeocoderTest  {
 		assertTrue(geo.getLat().equals("33.9840670"));
 		assertTrue(geo.getLng().equals("-98.5119150"));
 	}
-	
 
 }

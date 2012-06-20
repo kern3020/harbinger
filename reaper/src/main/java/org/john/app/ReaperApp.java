@@ -42,10 +42,10 @@ public class ReaperApp
         }
         InstituteRepository instituteRepository = context.getBean(InstituteRepository.class);
         
-//        instituteRepository.dropCollection();
-//        
-//        instituteRepository.createCollection();
-//        instituteRepository.parseMe(ACCREDITED_SCHOOLS_CSV);
-        instituteRepository.dump();
+        instituteRepository.dropCollection();
+        
+        instituteRepository.createCollection();
+        instituteRepository.parseMe(ACCREDITED_SCHOOLS_CSV);
+        //instituteRepository.dump();
     }
 }

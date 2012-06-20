@@ -40,7 +40,9 @@ public class AccreditedProgram {
 	AccreditationStatus accreditationStatus; 
 	AccreditationDataType accreditationDataType;
 	ProgramAction lastAction; 
+	AccreditationType accreditationType; 
 	
+	enum AccreditationType {INSTITUTIONAL, SPECIALIZED, INTERSHIP_RESIDENCY};
 	enum AccreditationStatus {PreAccredited, Accredited};
 	enum AccreditationDataType {Actual, Estimated}; 
 	enum ProgramAction {
@@ -270,5 +272,23 @@ public class AccreditedProgram {
 			rc = false; 
 		}
 		return rc; 
+	}
+	
+	public AccreditationType getAccreditationType() {
+		return accreditationType;
+	}
+
+	public void setAccreditationType(String accreditationTypeStr) {
+		if (accreditationTypeStr == null ) { 
+			System.err.println("null accreditation type. Ignoring and continuing.");
+			return;
+		}
+		if (this.accreditationType == null) {
+			if (accreditationTypeStr.toLowerCase().equals("internship/residency")) {
+				this.accreditationType = AccreditationType.INTERSHIP_RESIDENCY;
+			} else {
+				this.accreditationType = AccreditationType.valueOf(accreditationTypeStr.toUpperCase());
+			}
+		}
 	}
 }
