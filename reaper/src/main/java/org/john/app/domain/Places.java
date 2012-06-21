@@ -31,8 +31,6 @@ public class Places {
 	String county; // administrative_area_level_2
 	String us_state;  // administrative_area_level_1, shortname
 	String zipCode; // postal_code
-	String lat; 
-	String lng;
 	double[] location; 
 	String website; 
 	PlaceType type;
@@ -60,12 +58,14 @@ public class Places {
 	public String getWebsite() {
 		return website;
 	}
+	
 	public void setWebsite(String website)  {
 		if (!website.toLowerCase().contains("http")) {
 			website = "http://" + website;
 		}
 		this.website = website;
 	}
+	
 	public String getCounty() {
 		return county;
 	}
@@ -93,20 +93,19 @@ public class Places {
 	public String getName() {
 		return name;
 	}
+	
 	public void setName(String name) {
 		this.name = name;
 	}
+	
 	public String getAddress() {
 		return address;
 	}
+	
 	// address is composed of both street_number + route
 	public void setAddress(String type, String address) {
 		if (this.address == null) {
 			this.address = address; 
-		} else if (type.equals(GeocoderPopulate.TYPE_STREET)) {
-			this.address = address + " " + this.address; 
-		} else { 
-			this.address += " " + address;
 		}
 	}
 	public String getUs_state() {
@@ -148,8 +147,7 @@ public class Places {
 		}
 		return rc + " [name=" + name + ", address=" + address + ", city="
 				+ city + ", county=" + county + ", us_state=" + us_state
-				+ ", zipCode=" + zipCode + ", lat=" + lat + ", lng=" + lng
-				+ "]";
+				+ ", zipCode=" + zipCode + "]";
 	}
 	
 }
