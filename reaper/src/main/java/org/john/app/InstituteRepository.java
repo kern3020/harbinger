@@ -265,7 +265,7 @@ public class InstituteRepository {
 	public  void geocodeMe() {
 		GeocoderLocation geo = new GeocoderLocation(); 
         List<AccreditedPostsecondaryInstitution> results = null;
-		results = mongoTemplate.find(query(where("location").exists(false)).limit(5), 
+		results = mongoTemplate.find(query(where("location").exists(false)).limit(500), 
 				AccreditedPostsecondaryInstitution.class);
 
 		Iterator<AccreditedPostsecondaryInstitution> iterator = results.iterator();
@@ -279,9 +279,26 @@ public class InstituteRepository {
 			geo.parseMe(geocodeDis);
 
 			
-			// geocode institute.  
-			institute.setLat(geo.getLat());
-			institute.setLng(geo.getLng());
+			// geocode institute. 
+			try { 
+				String latStr = geo.getLat(); 
+				if (latStr != null) {
+					institute.setLat(geo.getLat());
+				} else {
+					System.err.println("error: null lat for "  + geocodeDis);
+	    			System.err.println("\t ignoring and continuing. ");
+				}
+				String lngStr = geo.getLng();
+				if (lngStr != null) {
+					institute.setLng(lngStr);
+				} else {
+					System.err.println("error: null lng for "  + geocodeDis);
+	    			System.err.println("\t ignoring and continuing. ");
+				}
+				
+			} catch (Exception e ){
+				e.printStackTrace();
+			}
 			
 			
 			try {

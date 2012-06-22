@@ -5,6 +5,7 @@ import org.john.app.domain.Organization;
 import org.junit.* ;
 import static org.junit.Assert.* ;
 
+
 /**
  * Unit test for simple Geocoder.
  */
@@ -22,9 +23,18 @@ public class GeocoderTest  {
 		geo.parseMe(org);
 		// expecting 
 		// <lat>31.8893560</lat>
-		// <lng>-87.7452687</lng>
-		assertTrue(org.getFirstLat() == 31.8893560);
-		assertTrue(org.getFirstLng() == -87.7452687);
+		// <lng>-87.7452687</lng> 
+		assertTrue(Math.abs(org.getFirstLat() - 31.4878568) < 0.001);  
+		assertTrue(Math.abs( org.getFirstLng() - -87.3250744) < 0.001);
+	}
+	
+	@Test
+	public void googleChokes () {
+		GeocoderLocation geo = new GeocoderLocation(); 
+		geo.parseMe("1410 Hwy 304 East Pocahontas AR");
+		
+		assertNotNull(geo.getLat());
+		assertNotNull(geo.getLng());
 	}
 	
 	/**
