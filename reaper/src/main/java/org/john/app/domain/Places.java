@@ -79,6 +79,9 @@ public class Places {
 	}
 
 	public void setLat(String lat) {
+		if (this.location == null) {
+			this.location = new double[2];
+		}
 		this.location[LAT] = Double.valueOf(lat);
 	}
 
@@ -87,6 +90,9 @@ public class Places {
 	}
 
 	public void setLng(String lng) {
+		if (this.location == null) {
+			this.location = new double[2];
+		}
 		this.location[LNG] = Double.valueOf(lng);
 	}
 

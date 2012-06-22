@@ -19,8 +19,7 @@ package org.john.app;
 
 
 import static org.springframework.data.mongodb.core.query.Query.query;
-//import static org.springframework.data.mongodb.core.query.Criteria.where;
-
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -46,6 +45,7 @@ import org.john.app.domain.GeocoderPopulate;
 @Repository
 public class InstituteRepository {
 	static final Logger logger = LoggerFactory.getLogger(InstituteRepository.class);
+	static final String COLLECTION_NAME="institutions"; 
 
 	@Autowired
     MongoTemplate mongoTemplate;
@@ -110,12 +110,12 @@ public class InstituteRepository {
                 		} else {
                 			// save previous institution to the repository
                        		try { 
-                    			mongoTemplate.insert(institute);
+                    			mongoTemplate.insert(institute,COLLECTION_NAME);
                     		} catch (DataAccessException e) {
-                    			System.err.println("unexpected data access error: "  + e.getMessage());
+                    			System.err.println("unexpected data access error (insert): "  + e.getMessage());
                     			System.err.println("\t ignoring and continuing. ");
                     		} catch (Exception e) {
-                    			System.err.println("unexpected error: "  + e.getMessage());
+                    			System.err.println("unexpected error (insert): "  + e.getMessage());
                     			System.err.println("\t ignoring and continuing. ");
                     		}
                        		// create a new institution for this row. 
@@ -264,25 +264,37 @@ public class InstituteRepository {
 	
 	public  void geocodeMe() {
 		GeocoderLocation geo = new GeocoderLocation(); 
-		// geo.parseMe("917 Missile Road Sheppard AFB TX 76311-2263");
         List<AccreditedPostsecondaryInstitution> results = null;
-		results = mongoTemplate.find(query(null).limit(5), AccreditedPostsecondaryInstitution.class);
+		results = mongoTemplate.find(query(where("location").exists(false)).limit(5), 
+				AccreditedPostsecondaryInstitution.class);
 
 		Iterator<AccreditedPostsecondaryInstitution> iterator = results.iterator();
 		while(iterator.hasNext()) {
-			AccreditedPostsecondaryInstitution aPlace = iterator.next();
+			AccreditedPostsecondaryInstitution institute = iterator.next();
 			String geocodeDis = 
-				aPlace.getAddress() +
-				aPlace.getCity() +
-				aPlace.getUs_state() +
-				aPlace.getCounty();
+				institute.getAddress() + " " + 
+				institute.getCity() + " " +
+				institute.getUs_state();
 			geo.reset();
 			geo.parseMe(geocodeDis);
-			// ok, how do I update the document with lat/lng? 
-			// What is the right syntax for the java object ?
-			// what is the right mongo operation? 
+
+			
+			// geocode institute.  
+			institute.setLat(geo.getLat());
+			institute.setLng(geo.getLng());
+			
+			
+			try {
+				// save modified version 
+				mongoTemplate.save(institute,COLLECTION_NAME);
+			} catch (DataAccessException e) {
+    			System.err.println("unexpected data access error (save): "  + e.getMessage());
+    			System.err.println("\t ignoring and continuing. ");
+    		} catch (Exception e) {
+    			System.err.println("unexpected error (save): "  + e.getMessage());
+    			System.err.println("\t ignoring and continuing. ");
+    		}
 		}
-		
 	}
 
 	private Integer convertToInteger(String aStr) {

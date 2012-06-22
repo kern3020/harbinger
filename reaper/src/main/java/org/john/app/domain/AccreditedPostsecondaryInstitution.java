@@ -38,13 +38,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection="institutions")
 public class AccreditedPostsecondaryInstitution extends Places {
-	@SuppressWarnings("unused")
 	@Id
-	private String instituteId;
+	private Integer id;
 	 
-	// Database Specific Identification Number for Institution
-	Integer id;
-	
+
 	// Identification number used by the U.S. Department of Education's Office of 
 	// Postsecondary Education (OPE) to identify schools that have Program 
 	// Participation Agreements (PPA) so that its students are eligible to 

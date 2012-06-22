@@ -53,7 +53,6 @@ import org.xml.sax.XMLReader;
  */
 
 public class GeocoderLocation extends Geocoder  implements ContentHandler {
-
 	
 	// keeping lat/lng as strings to avoid round off errors. 
 	private String lat;
@@ -94,10 +93,6 @@ public class GeocoderLocation extends Geocoder  implements ContentHandler {
 		return lng;
 	}
 	
-	public double[] getMongoStyleLocaiton() {
-		return new double [] {Double.valueOf(lat), Double.valueOf(lng)};
-	}
-	
 	@Override
 	public void characters(char[] ch, int start, int length)
 			throws SAXException {
@@ -113,8 +108,6 @@ public class GeocoderLocation extends Geocoder  implements ContentHandler {
 		}
 		
 	}
-
-
 
 	@Override
 	public void endDocument() throws SAXException {
