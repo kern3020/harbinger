@@ -57,6 +57,8 @@ public class GeocoderLocation extends Geocoder  implements ContentHandler {
 	// keeping lat/lng as strings to avoid round off errors. 
 	private String lat;
 	private String lng;
+	protected String errMsg; 
+	private boolean hitLimit; 
 	
 	public GeocoderLocation() {
 		this.reset();
@@ -71,6 +73,8 @@ public class GeocoderLocation extends Geocoder  implements ContentHandler {
 	private void initializeDoc() { 
 		inDocument=false;
 		inStatus=false; 
+		hitLimit=false;
+		errMsg=null;
 	}
 	
 	private void initializeCampus() {
@@ -83,6 +87,12 @@ public class GeocoderLocation extends Geocoder  implements ContentHandler {
 		inLng=false;
 		lat=null;
 		lng=null;
+	}
+	
+	// Google limits the number of calls to this API.
+	// if you hit it, stop. 
+	public boolean limitExceeded() { 
+		return this.hitLimit;
 	}
 
 	public String getLat() {
@@ -99,7 +109,12 @@ public class GeocoderLocation extends Geocoder  implements ContentHandler {
 		if (inStatus) {
 			String status = new String(ch,start,length);
 			if (!status.equals("OK")){
-				//throws new Exception("Invalid status");
+				if (status.equals("OVER_QUERY_LIMIT")) {
+					this.errMsg = "msg: over query limit";
+					this.hitLimit = true;
+				} else { 
+					this.errMsg = "msg: " + status ;
+				}
 			}
 		}  else if (inLocation && inLat) {
 			lat = new String(ch,start,length);

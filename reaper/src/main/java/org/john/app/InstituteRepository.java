@@ -269,7 +269,7 @@ public class InstituteRepository {
 				AccreditedPostsecondaryInstitution.class);
 
 		Iterator<AccreditedPostsecondaryInstitution> iterator = results.iterator();
-		while(iterator.hasNext()) {
+		while(iterator.hasNext() && !geo.limitExceeded() ) {
 			AccreditedPostsecondaryInstitution institute = iterator.next();
 			String geocodeDis = 
 				institute.getAddress() + " " + 
@@ -283,7 +283,7 @@ public class InstituteRepository {
 			try { 
 				String latStr = geo.getLat(); 
 				if (latStr != null) {
-					institute.setLat(geo.getLat());
+					institute.setLat(latStr);
 				} else {
 					System.err.println("error: null lat for "  + geocodeDis);
 	    			System.err.println("\t ignoring and continuing. ");
