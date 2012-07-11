@@ -21,6 +21,7 @@ package org.john.app;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -41,31 +42,51 @@ import org.john.app.domain.AccreditedPostsecondaryInstitution;
 import org.john.app.domain.AccreditedProgram;
 import org.john.app.domain.GeocoderLocation;
 import org.john.app.domain.GeocoderPopulate;
+import org.john.app.domain.StateAndCentroid;
 
 @Repository
 public class InstituteRepository {
 	static final Logger logger = LoggerFactory.getLogger(InstituteRepository.class);
-	static final String COLLECTION_NAME="institutions"; 
+	static final String INST_COLLECTION_NAME="institutions"; 
+	static final String CENTROID_COLLECTION_NAME="centroid";
 
 	@Autowired
     MongoTemplate mongoTemplate;
 	
+	/**
+	 * Yes I could probably combine the methods below. Since the consequence of drop a collection
+	 * can be very severe, I want to be very explicit about it.
+	 */
+	
     /**
      * Create a {@link AccreditedPostsecondaryInstitution} collection if the collection does not already exists
      */
-    public void createCollection() {
+    public void createInstitutionsCollection() {
         if (!mongoTemplate.collectionExists(AccreditedPostsecondaryInstitution.class)) {
             mongoTemplate.createCollection(AccreditedPostsecondaryInstitution.class);
+        }
+    }
+    
+    public void createCentroidCollection () { 
+        if (!mongoTemplate.collectionExists(StateAndCentroid.class)) {
+            mongoTemplate.createCollection(StateAndCentroid.class);
         }
     }
 
     /**
      * Drops the {@link AccreditedPostsecondaryInstitution} collection if the collection does already exists
      */
-    public void dropCollection() {
+    public void dropInstitutionsCollection() {
         if (mongoTemplate.collectionExists(AccreditedPostsecondaryInstitution.class)) {
             mongoTemplate.dropCollection(AccreditedPostsecondaryInstitution.class);
         }
+
+    }
+    
+    public void dropCentroidCollection () {
+        if (mongoTemplate.collectionExists(StateAndCentroid.class)) {
+            mongoTemplate.dropCollection(StateAndCentroid.class);
+        }    	
     }
     
 	/**
@@ -110,7 +131,7 @@ public class InstituteRepository {
                 		} else {
                 			// save previous institution to the repository
                        		try { 
-                    			mongoTemplate.insert(institute,COLLECTION_NAME);
+                    			mongoTemplate.insert(institute,INST_COLLECTION_NAME);
                     		} catch (DataAccessException e) {
                     			System.err.println("unexpected data access error (insert): "  + e.getMessage());
                     			System.err.println("\t ignoring and continuing. ");
@@ -262,6 +283,68 @@ public class InstituteRepository {
         return rc; 
 	}
 	
+	/**
+	 * parse a file containing centroid data for US states. 
+	 * @param aFile
+	 */
+			
+
+	public void parseCentroidFile(final String aFile) {
+		try { 
+			FileReader fr = new FileReader(aFile);
+			BufferedReader br = new BufferedReader(fr);
+			StateAndCentroid sac = new StateAndCentroid();
+			String tmp; 
+			br.readLine(); // ignore header 
+			while ((tmp=br.readLine()) !=null) {
+				int start =0; 
+				int end = 2; 
+				
+				String t2 = tmp.substring(start, end);
+				sac.setAbbreviation(t2);
+				
+				start = end;
+				while (!Character.isDigit(tmp.charAt(end))) {
+					end++;
+				}
+				t2 = tmp.substring(start,end).trim();
+				sac.setName(t2);
+				
+				start = end;
+				end +=2;
+				t2 = tmp.substring(start,end);
+				sac.setFips(t2);
+				
+				end++ ; // ignore whitespace  
+				start = end;
+				while (!Character.isWhitespace(tmp.charAt(end))) {
+					end++;
+				}
+				t2 = tmp.substring(start,end);
+				sac.setLng(Double.parseDouble(t2));
+				
+				end++; // increment past state. 
+				start = end; 
+				t2 = tmp.substring(start);
+				sac.setLat(Double.parseDouble(t2));
+				System.out.println(sac);
+				try { 
+        			mongoTemplate.insert(sac,CENTROID_COLLECTION_NAME);
+        		} catch (DataAccessException e) {
+        			System.err.println("unexpected data access error (insert): "  + e.getMessage());
+        			System.err.println("\t ignoring and continuing. ");
+        		} catch (Exception e) {
+        			System.err.println("unexpected error (insert): "  + e.getMessage());
+        			System.err.println("\t ignoring and continuing. ");
+        		}
+				
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
 	public  void geocodeMe() {
 		GeocoderLocation geo = new GeocoderLocation(); 
         List<AccreditedPostsecondaryInstitution> results = null;
@@ -303,7 +386,7 @@ public class InstituteRepository {
 			
 			try {
 				// save modified version 
-				mongoTemplate.save(institute,COLLECTION_NAME);
+				mongoTemplate.save(institute,INST_COLLECTION_NAME);
 			} catch (DataAccessException e) {
     			System.err.println("unexpected data access error (save): "  + e.getMessage());
     			System.err.println("\t ignoring and continuing. ");

@@ -29,7 +29,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class ReaperApp 
 {
 	static final Logger logger = LoggerFactory.getLogger(ReaperApp.class);
-	final static String ACCREDITED_SCHOOLS_CSV="/home/jkern/workspace/harvester/data/Accreditation/Accreditation_2012_03.csv";
+	static final String ACCREDITED_SCHOOLS_CSV="/home/jkern/workspace/harvester/data/Accreditation/Accreditation_2012_03.csv";
+	static final String STATE_FILE="/home/jkern/data/geo/states.txt";
 	
     public static void main( String[] args )
     {
@@ -42,10 +43,6 @@ public class ReaperApp
         }
         InstituteRepository instituteRepository = context.getBean(InstituteRepository.class);
         
-//        instituteRepository.dropCollection();
-//        
-//        instituteRepository.createCollection();
-//        instituteRepository.parseMe(ACCREDITED_SCHOOLS_CSV);
-         instituteRepository.geocodeMe();
+        instituteRepository.geocodeMe();
     }
 }
