@@ -60,10 +60,12 @@ public class Places {
 	}
 	
 	public void setWebsite(String website)  {
-		if (!website.toLowerCase().contains("http")) {
-			website = "http://" + website;
-		}
 		this.website = website;
+		if (!website.isEmpty() && 
+				!website.toLowerCase().contains("http")) {
+			this.website = "http://" + website;
+		}
+
 	}
 	
 	public String getCounty() {
