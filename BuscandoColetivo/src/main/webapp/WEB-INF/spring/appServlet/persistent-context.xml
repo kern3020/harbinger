@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo.xsd">
+		
+
+	<!-- Define the MongoTemplate which handles connectivity with MongoDB -->
+	<beans:bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+    	<beans:constructor-arg name="mongo" ref="mongo"/>
+    	<beans:constructor-arg name="databaseName" value="demo"/>
+	</beans:bean>
+
+  	<!-- Factory bean that creates the Mongo instance -->
+  	<beans:bean id="mongo" class="org.springframework.data.mongodb.core.MongoFactoryBean">
+   		<beans:property name="host" value="localhost"/>
+  	</beans:bean>
+
+  	<beans:bean id="repo" 
+  		class="org.john.buscando.services.InstitutionRepository"
+  		autowire="constructor" />
+
+  <!-- Use this post processor to translate any MongoExceptions thrown in @Repository annotated classes -->
+  <beans:bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
+	
+	
+</beans:beans>
