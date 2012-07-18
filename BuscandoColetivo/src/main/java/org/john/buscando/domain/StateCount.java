@@ -51,10 +51,18 @@ public class StateCount {
 		this.abbrev = abbrev;
 	}
 
+	public double getLat() {
+		return this.location[LAT];
+	}
+	
 	public void setLat(double aLat) {
 		this.location[LAT] = aLat;
 	}
-
+	
+	public double getLng() {
+		return this.location[LNG];
+	}
+	
 	public void setLng(double aLng) {
 		this.location[LNG] = aLng;
 	}

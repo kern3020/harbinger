@@ -17,6 +17,8 @@ package org.john.buscando;
  * limitations under the License.
  */
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import org.john.buscando.domain.StateCount;
 import org.john.buscando.services.InstitutionRepository;
 import org.john.app.domain.GeocoderLocation;
 
@@ -63,15 +66,17 @@ public class MapController {
 		return "json"; 
 	}
 
+	
 	/**
 	 * Given a zip or city return the lat/lng. 
 	 * 
 	 * @param CityOrZip
 	 * @param model
-	 * @return
+	 * @return json
 	 */
 	
-	@RequestMapping(value ="/CityOrZip/{CityOrZip}/centroid.json", method = RequestMethod.GET)
+	@RequestMapping(value ="/CityOrZip/{CityOrZip}/centroid.json", 
+			method = RequestMethod.GET)
 	public String getCentriod(
 			@PathVariable String CityOrZip,
 			Model model) {
@@ -81,4 +86,24 @@ public class MapController {
 		model.addAttribute("location", geo);
 		return "json"; 
 	}
+	
+	/**
+	 * Return number of institutions per state with state controid.  
+	 * 
+	 * @return json 
+	 */
+	
+	@RequestMapping(value="/countsPerState.json",
+			method= RequestMethod.GET)
+	public String getCountsPerState(Model model) {
+		logger.info("return number of institutions per state");
+		try {
+			List<StateCount> s = repo.countPerState();
+			model.addAttribute("countsPerState", s);
+		} catch (DataAccessException e ){
+			e.printStackTrace();
+		}
+		return "json"; 
+	}
+	
 }
