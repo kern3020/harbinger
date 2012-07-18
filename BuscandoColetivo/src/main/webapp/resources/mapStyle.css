@@ -1,4 +1,16 @@
 
 html { height: 100% }
-body { height: 100%; margin: 0; padding: 0 }
+
+#submitter {
+	background: peachpuff;
+	margin-top: 25px;
+}
+
+body {
+        background: saddlebrown; 
+        width: 720px;
+        height: 100%;
+        margin: 0 auto;
+}
+
 #map_canvas { height: 500px }

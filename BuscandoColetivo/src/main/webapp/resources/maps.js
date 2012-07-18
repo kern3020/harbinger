@@ -108,10 +108,26 @@ function getInstitutions () {
 	        for (var i = 0; i < data.institutions.length;i++) {
 	        	lat = data.institutions[i].lat;
 	        	lng = data.institutions[i].lng;
+	        	var title; 
+	        	var content; 
+	        	title = data.institutions[i].name ;
+	        	content = '<div id="info">' 
+	        		+ '<p>' + data.institutions[i].name + '</p>'
+	        		+ '<p>' + data.institutions[i].city + ', ' 
+	        			+ data.institutions[i].us_state + '</p>';
+	        	if (data.institutions[i].website) {
+	        		content 
+	        			+= '<p>' 
+	        				+ '<a href="' + data.institutions[i].website + '">'
+	        					+ "website" 
+	        				+ '</a>'
+	        			+ '</p>';
+	        	}
+	        	content += '</div>'; 
 	            marker = new google.maps.Marker({
 	                position:  new google.maps.LatLng(lat ,lng),
 	                map: map ,
-	                title: data.institutions[i].name
+	                title: title
 	                });
 	            markers.push(marker);
 	            (function (aName,aMarker){
@@ -120,7 +136,7 @@ function getInstitutions () {
 	                                content: aName});
 	                        infowindow.open(map,aMarker);
 	                });
-	            })(data.institutions[i].name,marker);
+	            })(content,marker);
 	        }
 	    } );
 	} else { 
@@ -136,12 +152,16 @@ function getInstitutions () {
 	        for (var i = 0; i < data.countsPerState.length;i++) {
 	        	lat = data.countsPerState[i].lat;
 	        	lng = data.countsPerState[i].lng;
+	        	var title; 
+	        	var content; 
+	        	title = data.countsPerState[i].abbrev 
+					+ ": " +  data.countsPerState[i].count;
+	        	content = title; 
+	        		
 	            marker = new google.maps.Marker({
 	                position:  new google.maps.LatLng(lat ,lng),
-	                map: map ,
-	                title: data.countsPerState[i].abbrev 
-	                	+ ": " 
-	                	+  data.countsPerState[i].count
+	                map: map,
+	                title: title
 	                });
 	            markers.push(marker);
 	            (function (aName,aMarker){
@@ -150,7 +170,7 @@ function getInstitutions () {
 	                                content: aName});
 	                        infowindow.open(map,aMarker);
 	                });
-	            })(data.countsPerState[i].name,marker);
+	            })(content ,marker);
 	        }
 	    } );
 	}
@@ -171,6 +191,7 @@ function setupEvent() {
 				alert("Geo-reference failed.");
 			} else { 
 				map.setCenter( new google.maps.LatLng( data.location.lat, data.location.lng ) );
+				map.setZoom(10);
 			}
 			
 		},'json'); 

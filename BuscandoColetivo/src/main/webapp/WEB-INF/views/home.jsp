@@ -16,8 +16,11 @@
 </head>
 <body onload="setupMap();">
 	<form  id="submitter" METHOD="GET" >
-  		Go to: <input type="text" id="cityOrZip"  /> 
-  		<input id="submitButton" type="submit" value="Submit" />
+		<fieldset>
+    		<legend>City or zip:</legend>
+  			<input type="text" id="cityOrZip"  /> 
+  			<input id="submitButton" type="submit" value="Submit" />
+  		</fieldset>
 	</form>
 
 	<div id="map_canvas"></div>
