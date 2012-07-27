@@ -18,16 +18,22 @@ package org.john.app;
  */
 
 
-import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.Query.query;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 
+import org.john.app.domain.AccreditedCampus;
+import org.john.app.domain.AccreditedPostsecondaryInstitution;
+import org.john.app.domain.AccreditedProgram;
+import org.john.app.domain.GeocoderLocation;
+import org.john.app.domain.GeocoderPopulate;
+import org.john.app.domain.StateAndCentroid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +42,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
 import au.com.bytecode.opencsv.CSVReader;
-
-import org.john.app.domain.AccreditedCampus;
-import org.john.app.domain.AccreditedPostsecondaryInstitution;
-import org.john.app.domain.AccreditedProgram;
-import org.john.app.domain.GeocoderLocation;
-import org.john.app.domain.GeocoderPopulate;
-import org.john.app.domain.StateAndCentroid;
 
 @Repository
 public class InstituteRepository {
@@ -348,19 +347,27 @@ public class InstituteRepository {
 	public  void geocodeMe() {
 		GeocoderLocation geo = new GeocoderLocation(); 
         List<AccreditedPostsecondaryInstitution> results = null;
-		results = mongoTemplate.find(query(where("location").exists(false)).limit(500), 
+		results = mongoTemplate.find(query(where("location").exists(false).and("us_state").ne("PR")).limit(100), 
 				AccreditedPostsecondaryInstitution.class);
+		
+//		 Criteria c = where("location").exists(false).and("us_state").ne("PR");
+//		 System.out.println("criteria: " + c.getCriteriaObject().toString());
 
 		Iterator<AccreditedPostsecondaryInstitution> iterator = results.iterator();
 		while(iterator.hasNext() && !geo.limitExceeded() ) {
 			AccreditedPostsecondaryInstitution institute = iterator.next();
 			String geocodeDis = 
-				institute.getAddress() + " " + 
-				institute.getCity() + " " +
+				institute.getAddress() + ", " + 
+				institute.getCity() + ", " +
 				institute.getUs_state();
 			geo.reset();
 			geo.parseMe(geocodeDis);
 
+			if (!geo.isValid()) {
+				System.err.println("warning: geocoder couldn't resolve: " + geocodeDis);
+				System.err.println("\t " + geo.getErrorMsg());
+				continue; 
+			}
 			
 			// geocode institute. 
 			try { 

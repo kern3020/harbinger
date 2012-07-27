@@ -58,13 +58,31 @@ public class GeocoderLocation extends Geocoder  implements ContentHandler {
 	private String lat;
 	private String lng;
 	protected String errMsg; 
-	private boolean hitLimit; 
+	public enum GEO_ERR  {NO_ERR, NO_RESULT, EXCEEDED_LIMIT, GENERAL_ERR};
+	private boolean hitLimit;
+	GEO_ERR request_err;
 	
 	public GeocoderLocation() {
 		this.reset();
 		
 	}
 
+	public boolean isValid()  {
+		return (request_err == GEO_ERR.NO_ERR) ? true: false; 
+	}
+	public String getErrorMsg() {
+		String rc = "unknown";
+		switch(request_err) {
+		case NO_RESULT:
+			rc = "No results"; 
+			break;
+		case EXCEEDED_LIMIT:
+			rc = "Limit exceeded";
+			break;
+		}
+		return rc;
+	}
+	
 	public void reset() { 
 		this.initializeDoc();
 		this.initializeCampus();
@@ -75,6 +93,7 @@ public class GeocoderLocation extends Geocoder  implements ContentHandler {
 		inStatus=false; 
 		hitLimit=false;
 		errMsg=null;
+		request_err=GEO_ERR.NO_ERR;
 	}
 	
 	private void initializeCampus() {
@@ -109,11 +128,16 @@ public class GeocoderLocation extends Geocoder  implements ContentHandler {
 		if (inStatus) {
 			String status = new String(ch,start,length);
 			if (!status.equals("OK")){
-				if (status.equals("OVER_QUERY_LIMIT")) {
+				if (status.equals("OVER_QUERY_LIMIT")) {  //OVER_QUERY_LIMIT
 					this.errMsg = "msg: over query limit";
 					this.hitLimit = true;
+					request_err = GEO_ERR.EXCEEDED_LIMIT;
+				} else if (status.equals("ZERO_RESULTS")) {
+					this.errMsg = "msg: " + status ;
+					request_err = GEO_ERR.NO_RESULT;
 				} else { 
 					this.errMsg = "msg: " + status ;
+					request_err = GEO_ERR.GENERAL_ERR;
 				}
 			}
 		}  else if (inLocation && inLat) {
