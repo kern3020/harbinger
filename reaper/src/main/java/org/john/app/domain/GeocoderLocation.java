@@ -70,6 +70,11 @@ public class GeocoderLocation extends Geocoder  implements ContentHandler {
 	public boolean isValid()  {
 		return (request_err == GEO_ERR.NO_ERR) ? true: false; 
 	}
+	
+	public boolean hasNoResults() { 
+		return (request_err == GEO_ERR.NO_RESULT) ? true: false;
+	}
+	
 	public String getErrorMsg() {
 		String rc = "unknown";
 		switch(request_err) {

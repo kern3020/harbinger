@@ -364,9 +364,23 @@ public class InstituteRepository {
 			geo.parseMe(geocodeDis);
 
 			if (!geo.isValid()) {
-				System.err.println("warning: geocoder couldn't resolve: " + geocodeDis);
-				System.err.println("\t " + geo.getErrorMsg());
-				continue; 
+				if (geo.hasNoResults()) {
+					// A common problem is the street address is bogus in the data. 
+					// Can this be resolved by using the institution name?
+					geocodeDis = 
+						institute.getName() + ", " + 
+						institute.getCity() + ", " +
+						institute.getUs_state();
+					geo.reset();
+					geo.parseMe(geocodeDis);
+				} 
+				// if it still broke, emit a warning and continue. 
+				if (!geo.isValid()) {
+					System.err.println("warning: geocoder couldn't resolve: " + geocodeDis);
+					System.err.println("\t " + geo.getErrorMsg());
+					continue;
+				}
+				 
 			}
 			
 			// geocode institute. 
@@ -401,6 +415,13 @@ public class InstituteRepository {
     			System.err.println("unexpected error (save): "  + e.getMessage());
     			System.err.println("\t ignoring and continuing. ");
     		}
+			// Google has an unspecified limit rate too. This is just a guess on good behavior.
+			try { 
+				Thread.sleep(500);
+			} catch (Exception e ){
+				e.printStackTrace();
+			}
+			
 		}
 	}
 
