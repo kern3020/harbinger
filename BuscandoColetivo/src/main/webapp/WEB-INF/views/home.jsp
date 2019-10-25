@@ -6,7 +6,7 @@
 	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 	<link rel="stylesheet" type="text/css" href="resources/mapStyle.css" media="all" />
 	<script type="text/javascript"
-		src="http://maps.google.com/maps/api/js?key=AIzaSyAfaGRBy1psfdxbgMkNaNSwY4IROs_G_3s&sensor=false"> </script>
+		src="http://maps.google.com/maps/api/js?key=<add_your_key>&sensor=false"> </script>
 	<script src="http://openlayers.org/api/OpenLayers.js" ></script> 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js" > </script>
 	<script type="text/javascript">
